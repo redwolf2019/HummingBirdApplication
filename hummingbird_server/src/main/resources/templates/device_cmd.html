@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>HummingBirdApplication</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">HummingBirdApplication</div>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <ul class="layui-nav layui-nav-tree" lay-filter="navFilter">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">Dashboard</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/device/type">设备类型</a></dd>
+                        <dd><a class="layui-this" href="/device/cmd">命令下发</a></dd>
+                        <dd><a href="/device/data">设备数据</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <div style="padding: 15px;">
+
+            <blockquote class="layui-elem-quote">
+                设备管理及命令下发
+                <button id="btnAddDevice" class="layui-btn layui-btn-danger">添加设备</button>
+            </blockquote>
+
+            <table class="layui-table" lay-data="{ url:'/api/device', page:'true'}" lay-filter="deviceFilter">
+                <thead>
+                <tr>
+                    <th lay-data="{field:'id', sort: false, fixed: true}">ID</th>
+                    <th lay-data="{field:'type'}">类型</th>
+                    <th lay-data="{field:'code'}">编码</th>
+                    <th lay-data="{field:'name', sort: false}">名称</th>
+                    <th lay-data="{field:'online', sort: false}">在线</th>
+                    <th lay-data="{fixed: 'right', width:150, align:'center', toolbar: '#barDevice'}">操作</th>
+                </tr>
+                </thead>
+            </table>
+            <script type="text/html" id="barDevice">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="cmdBtn">命令下发</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="deleteBtn">删除</a>
+            </script>
+
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        © HummingBird Tech
+    </div>
+</div>
+<script src="../static/layui/layui.js"></script>
+<script>
+
+
+    function submitDevice($, params) {
+        $.post('/api/device', params, function (res) {
+            if (res.success === true) {
+                location.reload();
+            } else {
+                alert(res.data)
+            }
+        }, 'json');
+    }
+
+    function submitCmd($, params) {
+        $.post('/api/device/cmd', params, function (res) {
+            if (res.success === true) {
+                alert(res.data)
+            } else {
+                alert(res.data)
+            }
+        }, 'json');
+    }
+
+    layui.use(['layer', 'form', 'table'], function () {
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        var form = layui.form;
+        var table = layui.table;
+
+        $(document).on('click', '#btnAddDevice', function () {
+            layer.open({
+                type: 1,
+                title: "添加设备",
+                shift: 2,
+                area: ['400px', '300px'],
+                shadeClose: true,
+                content: $("#addDeviceBody"),
+                success: function (layero) {
+                    $.ajax({
+                        url: '/api/device/type/list',
+                        type: 'GET',
+                        success: function (data) {
+                            var eles = eval(data.data);
+                            $("#deviceTypeSelect").empty();
+                            $(eles).each(
+                                function (index) {
+                                    var ele = eles[index];
+                                    var optionStr = "";
+                                    optionStr += "<option value='" + ele.id + "'>"
+                                        + ele.name + "</option>";
+                                    $("#deviceTypeSelect").append(optionStr);
+                                    form.render();
+                                });
+                        },
+                        error: function (data) {
+                            console.log(data);
+                            alert('查找数据出错');
+                        }
+                    });
+
+                }
+            });
+
+            form.on('submit(save)', function (data) {
+                params = data.field;
+                submitDevice($, params);
+                return false;
+            });
+
+        });
+
+        table.on('tool(deviceFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'deleteBtn') {
+                layer.confirm('删除此设备?', function (index) {
+                    $.ajax({
+                        type: "DELETE",
+                        url: '/api/device/' + data.id,
+                        success: function (res) {
+                            if (res.success === true) {
+                                location.reload();
+                            } else {
+                                alert(res.data)
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e);
+                        }
+                    });
+                    layer.close(index);
+                });
+            } else if(obj.event === 'cmdBtn'){
+                layer.open({
+                    type: 1,
+                    title: "命令下发",
+                    shift: 2,
+                    area: ['600px', '150px'],
+                    shadeClose: true,
+                    content: $("#deviceCmdBody"),
+                    success: function (layero) {
+
+                    }
+                });
+
+                form.on('submit(save)', function (v) {
+                    params = v.field;
+                    params.code = data.code;
+                    submitCmd($,params);
+                    return false;
+                });
+            }
+        });
+
+    });
+
+</script>
+
+
+<div id="addDeviceBody" style="display: none;">
+    <form class="layui-form" id="add-form" action="">
+        <div class="layui-form-item" style="width: 500px">
+            <label class="layui-form-label" style="width: 100px">数据类型</label>
+            <div class="layui-input-inline" style="margin-bottom: 5px">
+                <select id="deviceTypeSelect" name="deviceTypeId" lay-verify="required" lay-search=""
+                        lay-filter="deviceTypeSelectFilter">
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 100px">设备编码</label>
+            <div class="layui-input-block">
+                <input type="text" name="code" required style="width: 240px" lay-verify="required" placeholder=""
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 100px">设备名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="name" required style="width: 240px" lay-verify="required" placeholder=""
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="save">保存</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="deviceCmdBody" style="display: none;">
+    <form class="layui-form" id="cmd-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 100px">命令合集</label>
+            <div class="layui-input-block">
+                <input  type="text" name="cmd" required style="width: 450px" lay-verify="required" placeholder="1001:R;1003:true"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button style="width: 450px;margin-left: 20px" class="layui-btn" lay-submit lay-filter="save">保存</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

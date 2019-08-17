@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <jdbc>
+        <driver>com.mysql.jdbc.Driver</driver>
+        <url>jdbc:mysql://localhost:3306/hummingbird_db?useSSL=false</url>
+        <user>root</user>
+        <password>root</password>
+    </jdbc>
+    <generator>
+        <!-- 代码生成器 -->
+        <database>
+            <name>org.jooq.meta.mysql.MySQLDatabase</name>
+            <!--force generating id'sfor everything in public schema, that has an 'id' field-->
+            <syntheticPrimaryKeys>public\..*\.id</syntheticPrimaryKeys>
+            <!--name for fake primary key-->
+            <overridePrimaryKeys>override_primmary_key</overridePrimaryKeys>
+            <!--include和exclude用于控制为数据库中哪些表生成代码-->
+            <includes>.*</includes>
+            <!--<excludes></excludes>-->
+            <forcedTypes>
+                <forcedType>
+                    <name>BOOLEAN</name>
+                    <types>(?i:TINYINT(\s*\(\d+\))?(\s*UNSIGNED)?)</types>
+                </forcedType>
+                <forcedType>
+                    <userType>com.alibaba.fastjson.JSONArray</userType>
+                    <binding>com.wqh.hummingbird.server.common.JsonBinding</binding>
+                    <expression>.*JSON.*</expression>
+                    <!--                    <expression>.*IDS.*</expression>-->
+                    <types>.*</types>
+                </forcedType>
+            </forcedTypes>
+
+            <!--数据库名称-->
+            <inputSchema>hummingbird_db</inputSchema>
+            <!--            <outputSchema></outputSchema>-->
+        </database>
+
+        <generate>
+            <!--生成dao和pojo-->
+            <daos>false</daos>
+            <pojos>true</pojos>
+            <!--把数据库时间类型映射到java 8时间类型-->
+            <javaTimeTypes>true</javaTimeTypes>
+            <!--            <interfaces>true</interfaces>-->
+            <deprecated>false</deprecated>
+            <!--在生成的代码中添加spring注释，比如@Repository-->
+            <springAnnotations>true</springAnnotations>
+        </generate>
+
+        <target>
+            <!--生成代码文件的包名及放置目录-->
+            <packageName>com.wqh.hummingbird.server.generator</packageName>
+            <directory>src/main/java</directory>
+        </target>
+    </generator>
+</configuration>
