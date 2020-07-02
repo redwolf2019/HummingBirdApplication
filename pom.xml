@@ -24,7 +24,7 @@
 
         <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
 
-        <mysql-connector-java.version>5.1.47</mysql-connector-java.version>
+        <mysql-connector-java.version>8.0.16</mysql-connector-java.version>
         <fastjson.version>1.2.58</fastjson.version>
         <netty.version>4.1.25.Final</netty.version>
         <lombok.version>1.18.6</lombok.version>
