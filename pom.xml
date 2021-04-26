@@ -31,7 +31,7 @@
         <common.codec.version>1.12</common.codec.version>
         <guava.version>20.0</guava.version>
         <jack-son.version>2.9.9</jack-son.version>
-        <common-io.version>2.6</common-io.version>
+        <common-io.version>2.7</common-io.version>
 
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
